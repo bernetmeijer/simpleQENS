@@ -6,4 +6,5 @@ It streamlines the workflow of QENS analysis and adds onto some features in the 
 Prerequisites:
 - lmfit 0.9.15
 - qef 0.2.3
+
 Make sure you have these exact versions, otherwise code might break.
