@@ -38,6 +38,7 @@ def generate_model_and_params(res_data, spectrum_index=0, init_vals=None):
     # Ties and constraints
     parameters['e_'+sp+'amplitude'].set(min=0.05, max=1.0)
     parameters['l_'+sp+'sigma'].set(min=0.0001)
+    parameters['r_'+sp+'amplitude'].set(min=0.0001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     parameters['l_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
@@ -71,7 +72,7 @@ def generate_model_and_params2(res_data, spectrum_index=0, init_vals=None):
     elastic = DeltaDiracModel(prefix='e_'+sp)  # e_amplitude, e_center
     inelastic = LorentzianModel(prefix='l_'+sp)  # l_amplitude, l_center, l_sigma (also l_fwhm, l_height)
     inelastic2 = LorentzianModel(prefix='l2_'+sp)
-    reso = TabulatedModel(resolution1Dx, resolution1Dy, prefix='r_'+sp) # you can vary r_centre and r_amplitude
+    reso = TabulatedModel(resolution1Dx, resolution1Dy, prefix='r_'+sp)  # you can vary r_centre and r_amplitude
     background = LinearModel(prefix='b_'+sp)  # b_slope, b_intercept
 
     # Putting it all together
@@ -148,7 +149,7 @@ def make_separate_models(res, n_spectra, n_L, fwhm=None):
     return l_model, params_list
 
 
-def make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm=None, fwhm2=None):
+def make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm=None, fwhm2=None, constraintFrac=None):
     """ Create global parameters that tie spectrum parameters together.
     Currently fixes the value of the Lorentzian width over Q: this is true for rotational models, but should be changed for diffusion models.
 
@@ -173,6 +174,9 @@ def make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm=None, fwhm2=None)
         g_params.add('fwhm', value=fwhm, min=0.0)
         if n_L == 2:
             g_params.add('fwhm2', value=fwhm2)
+            if constraintFrac is not None:
+                g_params['fwhm2'].set(value=fwhm*2)
+                g_params['fwhm2'].set(expr='{}*fwhm'.format(constraintFrac))
 
         # Tie each lorentzian l_i_sigma to the global fwhm (sigma = fwhm/2)
         for i in range(n_spectra):
@@ -277,10 +281,11 @@ def minim(parameters, data, l_model):
     return g_fit, minimizer
 
 
-def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, fwhm2=None, init_fwhm_fix=False):
+def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, fwhm2=None, init_fwhm_fix=False,
+                    constraintFrac=None):
     if fixfwhm:
         l_model, g_params = make_global_model(resolution, n_spectra, n_L)
-        g_params = make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm1, fwhm2)
+        g_params = make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm1, fwhm2, constraintFrac=constraintFrac)
         global_fit, minimizer = minim(g_params, data, l_model)
         return global_fit, l_model, minimizer
     else:
