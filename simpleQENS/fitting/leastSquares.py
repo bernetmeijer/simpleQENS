@@ -251,7 +251,8 @@ def residuals(params, data, l_models, real_residu=False):
             print(e)
         model_evaluation = l_models[i].eval(x=E, params=params)
         if real_residu:
-            l_residuals.append((np.sqrt((model_evaluation - I)**2)))
+            #l_residuals.append((np.sqrt((model_evaluation - I)**2)))
+            l_residuals.append(I - model_evaluation)
         else:
             l_residuals.append(np.sqrt((model_evaluation - I)**2) / e)
     if real_residu:

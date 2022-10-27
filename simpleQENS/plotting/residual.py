@@ -1,13 +1,14 @@
 # plot residual, given a fitted model and the data
+import sys
+sys.path.append('/Users/Bernet/OneDrive - Queen Mary, University of London/PhD/Projects/SimpleQens/')
 
-from fitting import leastSquares
+from simpleQENS.fitting import leastSquares
 from lmfit.models import LorentzianModel, ConstantModel
 from qef.models.tabulatedmodel import TabulatedModel
 from qef.operators.convolve import Convolve
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-sys.path.append('/Users/Bernet/OneDrive - Queen Mary, University of London/PhD/Projects/SimpleQens/')
+
 
 
 def lorentzian(x, ampl, fwhm, centre, I, resolution):
