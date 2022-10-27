@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: simpleQENS
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Bernet Elise
+    family-names: Meijer
+    email: bernet.meijer@gmail.com
+    affiliation: Queen Mary University of London
+date-released: 2021-11-16
