@@ -183,7 +183,7 @@ def group_energy(groupE, data_dict):
     return data_dict
 
 
-def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spectra=[], usecols=0, pg='002'):
+def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spectra=[], usecols=0, pg='002', empty_cell=None, subtract_factor=1):
     """Reads a 2D Mantid data set exported to ASCII, returning the result as a dict of numpy arrays.
     
     Parameters
@@ -206,6 +206,10 @@ def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spec
         groupQ to get the best statistics.)
     delete_spectra : list(int)
         Indices of spectra to delete.
+    empty_cell: string
+        Path to empty cell nexus file, in case you want to subtract it
+    subtract_factor: float
+        scale factor to scale the empty cell before subtracting
 
     Returns
     -------
@@ -222,12 +226,11 @@ def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spec
     n_spectra = detectors.shape
     
     # Find indexes of dat['x'] with values in (e_min, e_max). 'mask' is the array with the energy-limits adjusted
-    if pg == '002':
-        e_min = -0.5
-        e_max = 0.5
-    elif pg == '004':
-        e_min = -1.0
-        e_max = 1.0
+    # '002' and '004' are settings for OSIRIS @ ISIS
+    # 'si_311' and 'si_111' are settings for BASIS @ SNS
+    range_dict = {'002': [-0.5, 0.5], '004': [-1.0, 1.0], 'si_311': [-0.66, 0.66], 'si_111': [-0.12, 0.12]}
+    e_min, e_max = range_dict[pg]
+
     mask = np.intersect1d(np.where(data['x'] > e_min), np.where(data['x'] < e_max))
 
     # Drop data outside the fitting range
@@ -242,6 +245,28 @@ def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spec
         'I': fr['y'],
         'dI': fr['e']
     }
+
+    # optional: subtract empty cell
+    if empty_cell is not None:
+        cell_data = load_nexus(empty_cell)
+        cell_mask = np.intersect1d(np.where(cell_data['x'] > e_min), np.where(cell_data['x'] < e_max))
+        c = dict()
+        c['E'] = cell_data['x'][cell_mask]
+        c['Q'] = detectors
+        c['I'] = np.asarray([y[cell_mask] for y in cell_data['y']])
+        c['e'] = np.asarray([e[cell_mask] for e in cell_data['e']])
+
+        I_subtracted = []
+        e_subtracted = []
+        for sp in range(len(detectors)):
+            subtracted_spectrum = data_dict['I'][sp] - subtract_factor * c['I'][sp]
+            I_subtracted.append(subtracted_spectrum)
+            # assuming each point is normally distributed, the new standard deviation is
+            stdev_new = data_dict['e'][sp]**2 + subtract_factor**2 * c['e'][sp]**2
+            e_subtracted.append(stdev_new)
+
+        data_dict['I'] = I_subtracted
+        data_dict['e'] = e_subtracted
 
     # group E-values
     if groupE != 1:
