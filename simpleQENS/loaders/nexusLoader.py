@@ -254,7 +254,7 @@ def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spec
         c['E'] = cell_data['x'][cell_mask]
         c['Q'] = detectors
         c['I'] = np.asarray([y[cell_mask] for y in cell_data['y']])
-        c['e'] = np.asarray([e[cell_mask] for e in cell_data['e']])
+        c['dI'] = np.asarray([e[cell_mask] for e in cell_data['e']])
 
         I_subtracted = []
         e_subtracted = []
@@ -262,7 +262,7 @@ def load_Nxs_Det(data_fn, data_dir, detector_fn, groupE=1, groupQ=1, delete_spec
             subtracted_spectrum = data_dict['I'][sp] - subtract_factor * c['I'][sp]
             I_subtracted.append(subtracted_spectrum)
             # assuming each point is normally distributed, the new standard deviation is
-            stdev_new = data_dict['e'][sp]**2 + subtract_factor**2 * c['e'][sp]**2
+            stdev_new = data_dict['dI'][sp]**2 + subtract_factor**2 * c['dI'][sp]**2
             e_subtracted.append(stdev_new)
 
         data_dict['I'] = I_subtracted
