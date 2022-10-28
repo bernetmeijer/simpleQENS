@@ -86,7 +86,7 @@ def make_global_model(res, Qvalues, init_params):
         # model and parameters for one of the spectra
         m, ps = generate_model_and_params_transRot(res, spectrum_index=i)
         ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot')  # fix width of rotation process (1st Lorentzian)
-        ps['l_{}_sigma'.format(i)].set(expr='0.50000*sin(fwhm_trans_alpha*{})*fwhm_trans_a'.format(Qvalues[i]))  # fwhm = a* sin(alpha * Q)
+        ps['l2_{}_sigma'.format(i)].set(expr='0.50000*sin(fwhm_trans_alpha*{})*fwhm_trans_a'.format(Qvalues[i]))  # fwhm = a* sin(alpha * Q)
         l_model.append(m)
         for p in ps.values():
             g_params.add(p)
