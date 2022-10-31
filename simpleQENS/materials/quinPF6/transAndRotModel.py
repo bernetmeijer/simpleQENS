@@ -80,13 +80,13 @@ def make_global_model(res, Qvalues, init_params):
     g_params.add('fwhm_rot', value=init_params['fwhm_rot'], min=0.0)
     # and global sine wave for fwhm of translational process
     g_params.add('fwhm_trans_a', value=init_params['fwhm_trans_a'], min=0.0)
-    g_params.add('fwhm_trans_alpha', value=init_params['fwhm_trans_alpha'], min=0.0)
+    g_params.add('fwhm_trans_l', value=init_params['fwhm_trans_l'], min=0.0)
 
     for i in range(0, n_spectra):
         # model and parameters for one of the spectra
         m, ps = generate_model_and_params_transRot(res, spectrum_index=i)
         ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot')  # fix width of rotation process (1st Lorentzian)
-        ps['l_{}_sigma'.format(i)].set(expr='0.50000*sin(fwhm_trans_alpha*{})*fwhm_trans_a'.format(Qvalues[i]))  # fwhm = a* sin(alpha * Q)
+        ps['l2_{}_sigma'.format(i)].set(expr='fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
         l_model.append(m)
         for p in ps.values():
             g_params.add(p)
@@ -104,7 +104,7 @@ def get_fit(data, resolution, init_params=None):
         dictionary containing the resolution data, same keys as data.
     init_params: dict
         dictionary containing one or more of the initial values you might want to set
-        can define fwhm_rot, fwhm_trans_alpha, fwhm_trans_a
+        can define fwhm_rot, fwhm_trans_l, fwhm_trans_a
         If you want to replace (one of the) the defaults.
 
     Returns
@@ -112,7 +112,7 @@ def get_fit(data, resolution, init_params=None):
     MinimizerResult, globalModel, minimizer
     """
 
-    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_alpha': 0.75}
+    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5}
 
     # set custom parameters if given
     if init_params is not None:
