@@ -38,7 +38,11 @@ def save_minimizerResult(result, filepath):
     params = result.params.dumps()
 
     # save statistics
-    statresults = [result.covar.tolist(), result.bic, result.redchi, result.chisqr, result.aic, result.var_names]
+    try:  # covar is not always available
+        covar = result.covar.tolist()
+    except:
+        covar = None
+    statresults = [covar, result.bic, result.redchi, result.chisqr, result.aic, result.var_names]
     for ii, stat in enumerate(['covar', 'bic', 'redchi', 'chisqr', 'aic', 'var_names']):
         resultdict[stat] = statresults[ii]
 
