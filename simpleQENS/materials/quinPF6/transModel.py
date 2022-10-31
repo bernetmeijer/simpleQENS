@@ -11,7 +11,7 @@ from qef.models.tabulatedmodel import TabulatedModel
 from qef.operators.convolve import Convolve
 
 
-def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=None):
+def generate_model_and_params_trans(res_data, spectrum_index=0, init_vals=None):
     """Produce an LMFIT model with one Lorentzian and related set of fitting parameters.
     This model has 1 Lorentzians, with the width following a Chudley-Elliot model for translational diffusion.
     """
@@ -36,9 +36,7 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     # Ties and constraints
     parameters['e_'+sp+'amplitude'].set(min=0.005, max=1.0)
     parameters['l_'+sp+'amplitude'].set(min=0.0001)
-    parameters['l2_'+sp+'amplitude'].set(min=0.0001)
     parameters['l_'+sp+'sigma'].set(min=0.0001)
-    parameters['l2_'+sp+'sigma'].set(min=0.0001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     parameters['l_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
@@ -77,7 +75,7 @@ def make_global_model(res, Qvalues, init_params):
 
     for i in range(0, n_spectra):
         # model and parameters for one of the spectra
-        m, ps = generate_model_and_params_transRot(res, spectrum_index=i)
+        m, ps = generate_model_and_params_trans(res, spectrum_index=i)
         ps['l_{}_sigma'.format(i)].set(expr='fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
         l_model.append(m)
         for p in ps.values():
