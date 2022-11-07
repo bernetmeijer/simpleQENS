@@ -49,13 +49,19 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     parameters['l2_'+sp+'amplitude'].set(expr='1 - e_'+sp+'amplitude - l_'+sp+'amplitude')
 
     # Some initial sensible values
-    if init_vals is None:
-        init_vals = {'I_'+sp+'c': 1000, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.04,
-                     'l2_'+sp+'sigma': 0.04,
-                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0}
-                     #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
-    for p, v in init_vals.items():
-        parameters[p].set(value=v)
+    default_vals = {'I_'+sp+'c': 1, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.04,
+                    'l2_'+sp+'sigma': 0.04,
+                    'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0,
+                    'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
+    # set custom parameters if given
+    if init_vals is not None:
+        for param in init_vals.keys():
+            default_vals[param] = init_vals[param]
+    for p, v in default_vals.items():
+        try:
+            parameters[p].set(value=v)
+        except:
+            continue
 
     # OPTIONAL, if you don't want to model the background
     #parameters['b_'+sp+'slope'].set(vary=False)
@@ -84,7 +90,7 @@ def make_global_model(res, Qvalues, init_params):
 
     for i in range(0, n_spectra):
         # model and parameters for one of the spectra
-        m, ps = generate_model_and_params_transRot(res, spectrum_index=i)
+        m, ps = generate_model_and_params_transRot(res, spectrum_index=i, init_vals=init_params)
         ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot')  # fix width of rotation process (1st Lorentzian)
         ps['l2_{}_sigma'.format(i)].set(expr='fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
         l_model.append(m)
@@ -106,6 +112,7 @@ def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
         dictionary containing one or more of the initial values you might want to set
         can define fwhm_rot, fwhm_trans_l, fwhm_trans_a
         If you want to replace (one of the) the defaults.
+        You can now also define any of the other parameters in here, such as 'I_0_c' etc.
     minim_method: string
         minimisation method (see https://lmfit.github.io/lmfit-py/fitting.html for options)
 
