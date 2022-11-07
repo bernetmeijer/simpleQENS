@@ -49,10 +49,10 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     parameters['l2_'+sp+'amplitude'].set(expr='1 - e_'+sp+'amplitude - l_'+sp+'amplitude')
 
     # Some initial sensible values
-    default_vals = {'I_'+sp+'c': 1, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.04,
+    default_vals = {'I_'+sp+'c': 0.9, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.04,
                     'l2_'+sp+'sigma': 0.04,
-                    'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0,
-                    'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
+                    'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0}
+                    #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     init_keys = default_vals.keys()
     # set custom parameters if given
     vals = default_vals
