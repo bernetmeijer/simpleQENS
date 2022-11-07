@@ -54,14 +54,12 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0,
                     'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     # set custom parameters if given
+    vals = default_vals
     if init_vals is not None:
         for param in init_vals.keys():
-            default_vals[param] = init_vals[param]
+            vals[param] = init_vals[param]
     for p, v in default_vals.items():
-        try:
-            parameters[p].set(value=v)
-        except:
-            continue
+        parameters[p].set(value=vals[p])
 
     # OPTIONAL, if you don't want to model the background
     #parameters['b_'+sp+'slope'].set(vary=False)
