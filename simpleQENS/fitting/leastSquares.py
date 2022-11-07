@@ -274,11 +274,11 @@ def residual_sp(params, data, l_model, sp, real_residual=False):
         return np.sqrt((model_evaluation - I) ** 2) / e
 
 
-def minim(parameters, data, l_model):
+def minim(parameters, data, l_model, method='leastsq'):
     """ Minimize the residuals function and return the optimal parameters + statistics
     """
     minimizer = lmfit.Minimizer(residuals, parameters, fcn_args=(data, l_model), nan_policy='omit')
-    g_fit = minimizer.minimize()
+    g_fit = minimizer.minimize(method=method)
     return g_fit, minimizer
 
 
