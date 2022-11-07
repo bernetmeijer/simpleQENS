@@ -60,7 +60,10 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
         for param in init_vals.keys():
             vals[param] = init_vals[param]
     for p in init_keys:
-        parameters[p].set(value=vals[p])
+        try:
+            parameters[p].set(value=vals[p])
+        except:
+            continue
 
     # OPTIONAL, if you don't want to model the background
     #parameters['b_'+sp+'slope'].set(vary=False)
