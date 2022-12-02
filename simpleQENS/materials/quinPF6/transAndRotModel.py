@@ -91,6 +91,7 @@ def make_global_model(res, Qvalues, init_params):
         m, ps = generate_model_and_params_transRot(res, spectrum_index=i, init_vals=init_params)
         ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
         ps['l2_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot + 0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))
+        ps['I_{}_c'.format(i)].set(value=init_params['I'])
         # l2 is the rotational and translational lorentzian convolved,
         # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans
         l_model.append(m)
@@ -121,7 +122,7 @@ def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
     MinimizerResult, globalModel, minimizer
     """
 
-    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5}
+    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
 
     # set custom parameters if given
     if init_params is not None:

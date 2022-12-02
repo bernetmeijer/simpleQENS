@@ -71,6 +71,7 @@ def make_global_model(res, Qvalues, init_params):
         # model and parameters for one of the spectra
         m, ps = generate_model_and_params_trans(res, spectrum_index=i)
         ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
+        ps['l_{}_amplitude'.format(i)].set(value=init_params['I'])
         l_model.append(m)
         for p in ps.values():
             g_params.add(p)
@@ -96,7 +97,7 @@ def get_fit(data, resolution, init_params=None):
     MinimizerResult, globalModel, minimizer
     """
 
-    default_params = {'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5}
+    default_params = {'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
 
     # set custom parameters if given
     if init_params is not None:
