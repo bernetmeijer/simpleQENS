@@ -39,8 +39,7 @@ def generate_model_and_params_trans(res_data, spectrum_index=0, init_vals=None):
 
     # Some initial sensible values
     if init_vals is None:
-        init_vals = {'I_'+sp+'c': 1000,
-                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
+        init_vals = {'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
                      #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     for p, v in init_vals.items():
         parameters[p].set(value=v)
