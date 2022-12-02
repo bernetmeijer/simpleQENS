@@ -23,29 +23,24 @@ def generate_model_and_params_trans(res_data, spectrum_index=0, init_vals=None):
     resolution1Dx = res_data['E']  # Q, E
 
     # Model components
-    intensity = ConstantModel(prefix='I_'+sp)  # I_amplitude
-    elastic = DeltaDiracModel(prefix='e_'+sp)  # e_amplitude, e_center
     inelastic = LorentzianModel(prefix='l_'+sp)  # l_amplitude, l_center, l_sigma (also l_fwhm, l_height)
     reso = TabulatedModel(resolution1Dx, resolution1Dy, prefix='r_'+sp)  # you can vary r_centre and r_amplitude
     background = LinearModel(prefix='b_'+sp)  # b_slope, b_intercept
 
     # Putting it all together
-    mymodel = intensity * Convolve(reso, elastic + inelastic) + background
+    mymodel = Convolve(reso, inelastic) + background  # I do not need to multiply by intensity -
+    # since we have only one Lorentzian, the amplitude of the Lorentzian is the intensity
     parameters = mymodel.make_params()  # model parameters are a separate entity.
 
     # Ties and constraints
-    parameters['e_'+sp+'amplitude'].set(min=0.005, max=1.0)
     parameters['l_'+sp+'amplitude'].set(min=0.0001)
     parameters['l_'+sp+'sigma'].set(min=0.0001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
-    parameters['l_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
-    parameters['l_'+sp+'amplitude'].set(expr='1 - e_'+sp+'amplitude')
-
     # Some initial sensible values
     if init_vals is None:
-        init_vals = {'I_'+sp+'c': 1000, 'e_'+sp+'amplitude': 0.9,
-                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0}
+        init_vals = {'I_'+sp+'c': 1000,
+                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
                      #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     for p, v in init_vals.items():
         parameters[p].set(value=v)

@@ -25,33 +25,29 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
 
     # Model components
     intensity = ConstantModel(prefix='I_'+sp)  # I_amplitude
-    elastic = DeltaDiracModel(prefix='e_'+sp)  # e_amplitude, e_center
     inelastic = LorentzianModel(prefix='l_'+sp)  # l_amplitude, l_center, l_sigma (also l_fwhm, l_height)
     inelastic2 = LorentzianModel(prefix='l2_'+sp)
     reso = TabulatedModel(resolution1Dx, resolution1Dy, prefix='r_'+sp)  # you can vary r_centre and r_amplitude
     background = LinearModel(prefix='b_'+sp)  # b_slope, b_intercept
 
     # Putting it all together
-    mymodel = intensity * Convolve(reso, elastic + inelastic + inelastic2) + background
+    mymodel = intensity * Convolve(reso, inelastic + inelastic2) + background
     parameters = mymodel.make_params()  # model parameters are a separate entity.
 
     # Ties and constraints
-    parameters['e_'+sp+'amplitude'].set(min=0.005, max=1.0)
     parameters['l_'+sp+'amplitude'].set(min=0.0001)
     parameters['l2_'+sp+'amplitude'].set(min=0.0001)
     parameters['l_'+sp+'sigma'].set(min=0.0001)
     parameters['l2_'+sp+'sigma'].set(min=0.0001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
-    parameters['l_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
-    #parameters['l_'+sp+'amplitude'].set(expr='1 - e_'+sp+'amplitude')
-    parameters['l2_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
-    parameters['l2_'+sp+'amplitude'].set(expr='1 - e_'+sp+'amplitude - l_'+sp+'amplitude')
+    parameters['l2_'+sp+'center'].set(expr='l_'+sp+'center')  # centers tied
+    parameters['l2_'+sp+'amplitude'].set(expr='1 - l_'+sp+'amplitude')
 
     # Some initial sensible values
-    default_vals = {'I_'+sp+'c': 0.9, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.04,
+    default_vals = {'I_'+sp+'c': 0.9, 'l_'+sp+'sigma': 0.04,
                     'l2_'+sp+'sigma': 0.04,
-                    'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'e_'+sp+'center': 0.0}
+                    'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
                     #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     init_keys = default_vals.keys()
     # set custom parameters if given
