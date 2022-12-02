@@ -46,7 +46,7 @@ def generate_model_and_params(res_data, spectrum_index=0, init_vals=None):
 
     # Some initial sensible values
     if init_vals is None:
-        init_vals = {'I_'+sp+'c': 400.0, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.0245,
+        init_vals = {'I_'+sp+'c': 1.0, 'e_'+sp+'amplitude': 0.9, 'l_'+sp+'sigma': 0.0245,
                      'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0, 'r_'+sp+'center': 0}
     for p, v in init_vals.items():
         parameters[p].set(value=v)
@@ -283,11 +283,14 @@ def minim(parameters, data, l_model, method='leastsq'):
 
 
 def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, fwhm2=None, init_fwhm_fix=False,
-                    constraintFrac=None):
+                    constraintFrac=None, bmax=None, minim_method='leastsq'):
     if fixfwhm:
         l_model, g_params = make_global_model(resolution, n_spectra, n_L)
         g_params = make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm1, fwhm2, constraintFrac=constraintFrac)
-        global_fit, minimizer = minim(g_params, data, l_model)
+        if bmax is not None:
+            for i in range(n_L):
+                g_params['b_{}_intercept'.format(i)].set(max=bmax)
+        global_fit, minimizer = minim(g_params, data, l_model, method=minim_method)
         return global_fit, l_model, minimizer
     else:
         results = []
@@ -298,9 +301,11 @@ def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, 
         else:
             l_models, params_list = make_separate_models(resolution, n_spectra, n_L)
         for sp in range(n_spectra):
+            if bmax is not None:
+                params_list[sp]['b_{}_intercept'.format(sp)].set(max=bmax)
             minimizer = lmfit.Minimizer(residual_sp, params_list[sp],
                                         fcn_args=(data, l_models[sp], sp), nan_policy='omit')
-            sp_fit = minimizer.minimize()
+            sp_fit = minimizer.minimize(method=minim_method)
             results.append(sp_fit)
             minimizers.append(minimizer)
         return results, l_models, minimizers
