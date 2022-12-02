@@ -70,7 +70,7 @@ def make_global_model(res, Qvalues, init_params):
     for i in range(0, n_spectra):
         # model and parameters for one of the spectra
         m, ps = generate_model_and_params_trans(res, spectrum_index=i)
-        ps['l_{}_sigma'.format(i)].set(expr='fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
+        ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # fwhm = a* (1-sin(l * Q)/(lQ))
         l_model.append(m)
         for p in ps.values():
             g_params.add(p)
