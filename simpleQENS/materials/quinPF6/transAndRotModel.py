@@ -101,7 +101,7 @@ def make_global_model(res, Qvalues, init_params):
     return l_model, g_params
 
 
-def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
+def get_fit(data, resolution, init_params=None, init_fixes=None, minim_method='leastsq'):
     """ Fit the data to the translational - rotational model.
     Parameters
     ----------
@@ -114,6 +114,9 @@ def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
         can define fwhm_rot, fwhm_trans_l, fwhm_trans_a
         If you want to replace (one of the) the defaults.
         You can now also define any of the other parameters in here, such as 'I_0_c' etc.
+    init_fixes: list
+        dictionary containing names of the parameters that you want to fix to their initial values.
+        such as 'fwhm_rot'
     minim_method: string
         minimisation method (see https://lmfit.github.io/lmfit-py/fitting.html for options)
 
@@ -122,7 +125,8 @@ def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
     MinimizerResult, globalModel, minimizer
     """
 
-    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
+    default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0,
+                      }
 
     # set custom parameters if given
     if init_params is not None:
@@ -130,5 +134,7 @@ def get_fit(data, resolution, init_params=None, minim_method='leastsq'):
             default_params[param] = init_params[param]
 
     l_model, g_params = make_global_model(resolution, data['Q'], default_params)
+    for init_fix_param in init_fixes:
+        g_params[init_fix_param].set(vary=False)
     global_fit, minimizer = leastSquares.minim(g_params, data, l_model, method=minim_method)
     return global_fit, l_model, minimizer
