@@ -283,13 +283,29 @@ def minim(parameters, data, l_model, method='leastsq'):
 
 
 def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, fwhm2=None, init_fwhm_fix=False,
-                    constraintFrac=None, bmax=None, minim_method='leastsq'):
+                    constraintFrac=None, bmax=None, minim_method='leastsq', init_params=None):
+    """ Get fit for single or two-lorentzian model, with option to specify some initial conditions and to fix the fwhm
+    of the first lorentzian globally or not.
+    To do: clean up this function, especially the initial conditions as they are double now. and add argument
+    descriptions. """
+
+    default_params = {'I': 1.0, 'fwhm': 0.02}
+    # replace defaults by arguments
+    for init_param in init_params.keys():
+        default_params[init_param] = init_params[init_param]
+
     if fixfwhm:
         l_model, g_params = make_global_model(resolution, n_spectra, n_L)
         g_params = make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm1, fwhm2, constraintFrac=constraintFrac)
         if bmax is not None:
-            for i in range(n_L):
+            for i in range(n_spectra):
                 g_params['b_{}_intercept'.format(i)].set(max=bmax)
+
+        # set initial parameter values
+        g_params['fwhm'].set(value=default_params['fwhm'])
+        for i in range(n_spectra):
+            g_params['I_{}_c'.format(i)].set(value=default_params['I'])
+
         global_fit, minimizer = minim(g_params, data, l_model, method=minim_method)
         return global_fit, l_model, minimizer
     else:
@@ -303,6 +319,11 @@ def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, 
         for sp in range(n_spectra):
             if bmax is not None:
                 params_list[sp]['b_{}_intercept'.format(sp)].set(max=bmax)
+
+            # set initial parameter values
+            params_list[sp]['l_{}_sigma'.format(sp)].set(value=0.5*default_params['fwhm'])
+            params_list[sp]['I_{}_c'.format(sp)].set(value=default_params['I'])
+
             minimizer = lmfit.Minimizer(residual_sp, params_list[sp],
                                         fcn_args=(data, l_models[sp], sp), nan_policy='omit')
             sp_fit = minimizer.minimize(method=minim_method)
