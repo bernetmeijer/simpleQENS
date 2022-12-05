@@ -291,8 +291,9 @@ def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, 
 
     default_params = {'I': 1.0, 'fwhm': 0.02}
     # replace defaults by arguments
-    for init_param in init_params.keys():
-        default_params[init_param] = init_params[init_param]
+    if init_params is not None:
+        for init_param in init_params.keys():
+            default_params[init_param] = init_params[init_param]
 
     if fixfwhm:
         l_model, g_params = make_global_model(resolution, n_spectra, n_L)
