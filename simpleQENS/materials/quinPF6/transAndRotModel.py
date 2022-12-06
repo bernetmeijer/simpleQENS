@@ -134,7 +134,8 @@ def get_fit(data, resolution, init_params=None, init_fixes=None, minim_method='l
             default_params[param] = init_params[param]
 
     l_model, g_params = make_global_model(resolution, data['Q'], default_params)
-    for init_fix_param in init_fixes:
-        g_params[init_fix_param].set(vary=False)
+    if init_fixes is not None:
+        for init_fix_param in init_fixes:
+            g_params[init_fix_param].set(vary=False)
     global_fit, minimizer = leastSquares.minim(g_params, data, l_model, method=minim_method)
     return global_fit, l_model, minimizer
