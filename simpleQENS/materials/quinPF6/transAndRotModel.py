@@ -35,7 +35,7 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     parameters = mymodel.make_params()  # model parameters are a separate entity.
 
     # Ties and constraints
-    parameters['l_'+sp+'amplitude'].set(min=0.0001)
+    parameters['l_'+sp+'amplitude'].set(min=0.0001, max=1.0)
     parameters['l2_'+sp+'amplitude'].set(min=0.0001)
     parameters['l_'+sp+'sigma'].set(min=0.0001)
     parameters['l2_'+sp+'sigma'].set(min=0.0001)
