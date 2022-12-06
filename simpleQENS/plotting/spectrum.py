@@ -169,9 +169,10 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
              color=colorres, linestyle='--', lw=lw2, zorder=5)
 
     # plot the contrubutions
+    lor_center = 0.0  # just fix it at zero
     inel1 = lorentzian(data['E'], ampl=params['l_' + str(spec) + '_amplitude'].value,
                        fwhm=params['l_' + str(spec) + '_fwhm'].value,
-                       centre=params['l_' + str(spec) + '_center'].value,
+                       centre=lor_center,
                        I=params['I_' + str(spec) + '_c'], resolution=resolution)
     ax2.plot(data['E'], inel1, color='mediumslateblue', label='Lorentzian 1', linestyle='-.', lw=lw2, zorder=6)
     colorlor = adjust_lightness('mediumslateblue', amount=1.23)
@@ -179,9 +180,9 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
     ax2.fill_between(resolution['E'], inel1, resoy, color='lightblue', alpha=0.5, zorder=0)
     # see if there's a second Lorentzian contribution
     try:
-        inel2 = lorentzian(data['E'], ampl=params['l2_' + np.str(spec) + '_amplitude'].value,
-                           fwhm=params['l2_' + np.str(spec) + '_fwhm'].value,
-                           centre=params['l2_0_center'].value, I=params['I_' + np.str(spec) + '_c'],
+        inel2 = lorentzian(data['E'], ampl=params['l2_' + str(spec) + '_amplitude'].value,
+                           fwhm=params['l2_' + str(spec) + '_fwhm'].value,
+                           centre=lor_center, I=params['I_' + np.str(spec) + '_c'],
                            resolution=resolution)
         ax2.plot(data['E'], inel2, color='pink', label='Lorentzian 2', linestyle='-.', lw=lw2, zorder=7)
     except:
