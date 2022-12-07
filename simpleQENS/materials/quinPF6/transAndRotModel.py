@@ -1,4 +1,4 @@
-# generate model with all lorentzian contributions of adamantane
+# model with diffusion and rotationa
 
 import sys
 sys.path.append('/Users/Bernet/OneDrive - Queen Mary, University of London/PhD/Projects/SimpleQens/')
