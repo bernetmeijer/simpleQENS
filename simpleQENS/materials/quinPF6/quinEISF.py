@@ -76,7 +76,7 @@ def EISF_octa(Q, jump_distances, modelname='octa C4C2', f=1.0, m=1.0):
         if modelname == 'octa C4C2':
             eisf = amplitudes[0]
 
-        elif modelname == 'octa onlyC2':
+        elif modelname == 'octa only C2':
             eisf = amplitudes[0] + amplitudes[1] + amplitudes[2]
 
         elif modelname == 'octa C3C2':
