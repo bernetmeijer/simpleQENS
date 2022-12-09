@@ -4,7 +4,7 @@ sys.path.append('/Users/Bernet/OneDrive - Queen Mary, University of London/PhD/P
 
 from simpleQENS.fitting import leastSquares
 from simpleQENS.materials.quinPF6 import transModel
-from simpleQENS.materials.quinPF6 import transAndRotModel
+from simpleQENS.materials.quinPF6 import transAndRotModel, transAndRotModel_2L, staticModel
 from lmfit.models import LorentzianModel, ConstantModel
 from qef.models.tabulatedmodel import TabulatedModel
 from qef.operators.convolve import Convolve
@@ -170,23 +170,37 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
 
     # plot the contrubutions
     lor_center = 0.0  # just fix it at zero
-    inel1 = lorentzian(data['E'], ampl=params['l_' + str(spec) + '_amplitude'].value,
-                       fwhm=params['l_' + str(spec) + '_fwhm'].value,
-                       centre=lor_center,
-                       I=params['I_' + str(spec) + '_c'], resolution=resolution)
-    ax2.plot(data['E'], inel1, color='mediumslateblue', label='Lorentzian 1', linestyle='-.', lw=lw2, zorder=6)
-    colorlor = adjust_lightness('mediumslateblue', amount=1.23)
-    ax2.fill_between(data['E'], np.zeros(inel1.shape), inel1, color=colorlor, zorder=1)
-    ax2.fill_between(resolution['E'], inel1, resoy, color='lightblue', alpha=0.5, zorder=0)
-    # see if there's a second Lorentzian contribution
-    try:
-        inel2 = lorentzian(data['E'], ampl=params['l2_' + str(spec) + '_amplitude'].value,
-                           fwhm=params['l2_' + str(spec) + '_fwhm'].value,
-                           centre=lor_center, I=params['I_' + np.str(spec) + '_c'],
-                           resolution=resolution)
-        ax2.plot(data['E'], inel2, color='pink', label='Lorentzian 2', linestyle='-.', lw=lw2, zorder=7)
+
+    try:  # 1st lorentzian
+        inel1 = lorentzian(data['E'], ampl=params['l_' + str(spec) + '_amplitude'].value,
+                           fwhm=params['l_' + str(spec) + '_fwhm'].value,
+                           centre=lor_center,
+                           I=params['I_' + str(spec) + '_c'], resolution=resolution)
+        ax2.plot(data['E'], inel1, color='mediumslateblue', label='Lorentzian 1', linestyle='-.', lw=lw2, zorder=6)
+        colorlor = adjust_lightness('mediumslateblue', amount=1.23)
+        ax2.fill_between(data['E'], np.zeros(inel1.shape), inel1, color=colorlor, zorder=1)
+        ax2.fill_between(resolution['E'], inel1, resoy, color='lightblue', alpha=0.5, zorder=0)
+
+        try:  # snd lorentzian
+            inel2 = lorentzian(data['E'], ampl=params['l2_' + str(spec) + '_amplitude'].value,
+                               fwhm=params['l2_' + str(spec) + '_fwhm'].value,
+                               centre=lor_center, I=params['I_' + np.str(spec) + '_c'],
+                               resolution=resolution)
+            ax2.plot(data['E'], inel2, color='pink', label='Lorentzian 2', linestyle='-.', lw=lw2, zorder=7)
+
+            try:  # 3rd lorentzian
+                inel3 = lorentzian(data['E'], ampl=params['l3_' + str(spec) + '_amplitude'].value,
+                               fwhm=params['l3_' + str(spec) + '_fwhm'].value,
+                               centre=lor_center, I=params['I_' + np.str(spec) + '_c'],
+                               resolution=resolution)
+                ax2.plot(data['E'], inel3, color='red', label='Lorentzian 3', linestyle='-.', lw=lw2, zorder=8)
+            except:
+                print('found 2 lorentzians')
+        except:
+            print('found 1 Lorentzian')
     except:
-        print('Could only find 1 Lorentzian in parameters.')
+        print('found no lorentzians')
+
     if plot_bg:
         bg = background(data['E'], offset=params['b_' + np.str(spec) + '_intercept'].value,
                         slope=params['b_' + np.str(spec) + '_slope'].value)
@@ -249,6 +263,10 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         l_model, g_params = leastSquares.make_global_model(resolution, n_spectra, 1)
         delta = True
 
+    elif modelname == '2Lfixfwhm':
+        l_model, g_params = leastSquares.make_global_model(resolution, n_spectra, 2)
+        delta = True
+
     elif modelname == '1Ltransfwhm':
         default_params = {'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transModel.make_global_model(resolution, data['Q'], default_params)
@@ -258,6 +276,16 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transAndRotModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
+
+    elif modelname == 'transRot_2L':
+        default_params = {'fwhm_rot': 0.1, 'fwhm_rot2': 0.01, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
+        l_model, g_params = transAndRotModel_2L.make_global_model(resolution, data['Q'], default_params)
+        delta = False
+
+    elif modelname == 'static':
+        default_params = {'I': 1.0}
+        l_model, g_params = staticModel.make_global_model(resolution, data['Q'], default_params)
+        delta = True
 
     else:
         print('{} is not a valid model name!'.format(modelname))
