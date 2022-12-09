@@ -173,7 +173,7 @@ def make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm=None, fwhm2=None,
         # Introduce global parameter fwhm.
         g_params.add('fwhm', value=fwhm, min=0.0)
         if n_L == 2:
-            g_params.add('fwhm2', value=fwhm2)
+            g_params.add('fwhm2', value=fwhm2, min=0.0)
             if constraintFrac is not None:
                 g_params['fwhm2'].set(value=fwhm*2)
                 g_params['fwhm2'].set(expr='{}*fwhm'.format(constraintFrac))
