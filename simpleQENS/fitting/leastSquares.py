@@ -289,7 +289,7 @@ def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, 
     To do: clean up this function, especially the initial conditions as they are double now. and add argument
     descriptions. """
 
-    default_params = {'I': 1.0, 'fwhm': 0.02}
+    default_params = {'I': 1.0, 'fwhm': 0.02, 'fwhm2': 0.04}
     # replace defaults by arguments
     if init_params is not None:
         for init_param in init_params.keys():
@@ -304,6 +304,8 @@ def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, 
 
         # set initial parameter values
         g_params['fwhm'].set(value=default_params['fwhm'])
+        if n_L == 2:
+            g_params['fwhm2'].set(value=default_params['fwhm2'])
         for i in range(n_spectra):
             g_params['I_{}_c'.format(i)].set(value=default_params['I'])
 
