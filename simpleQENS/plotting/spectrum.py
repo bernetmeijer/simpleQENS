@@ -157,9 +157,9 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
     # resolution
     intensity = params['I_{}_c'.format(spec)]
     try:
-        resoy = intensity * params['e_{}_amplitude'.format(spec)] * resolution['I'][0]
+        resoy = intensity * params['e_{}_amplitude'.format(spec)] * resolution['I'][spec]
     except:
-        resoy = intensity * resolution['I'][0]
+        resoy = intensity * resolution['I'][spec]
     colorres = adjust_lightness('skyblue', amount=1.27)
     # for nice darker legend colour:
     ax2.plot(resolution['E'], resoy,
@@ -296,7 +296,7 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
     for sp in range(len(data['I'])):
         fig1, ax1, fig2, ax2 = plot_fit(data, resolution, result['params'], sp, l_model, plot_bg=plot_bg, delta=delta)
         if logscale:
-            ax1.set_yscale('log')
+            #ax1.set_yscale('log')
             ax2.set_yscale('log')
         all_figures.append([fig1, ax1, fig2, ax2])
 
