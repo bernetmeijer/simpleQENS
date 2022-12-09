@@ -34,7 +34,7 @@ def generate_model_and_params_trans(res_data, spectrum_index=0, init_vals=None):
 
     # Ties and constraints
     parameters['l_'+sp+'amplitude'].set(min=0.0001)
-    parameters['l_'+sp+'sigma'].set(min=0.0001)
+    parameters['l_'+sp+'sigma'].set(min=0.00001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     # Some initial sensible values

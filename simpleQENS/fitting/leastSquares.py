@@ -37,7 +37,7 @@ def generate_model_and_params(res_data, spectrum_index=0, init_vals=None):
 
     # Ties and constraints
     parameters['e_'+sp+'amplitude'].set(min=0.05, max=1.0)
-    parameters['l_'+sp+'sigma'].set(min=0.0001)
+    parameters['l_'+sp+'sigma'].set(min=0.00001)
     parameters['r_'+sp+'amplitude'].set(min=0.0001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
@@ -83,8 +83,8 @@ def generate_model_and_params2(res_data, spectrum_index=0, init_vals=None):
     parameters['e_'+sp+'amplitude'].set(min=0.005, max=1.0)
     parameters['l_'+sp+'amplitude'].set(min=0.0001)
     parameters['l2_'+sp+'amplitude'].set(min=0.0001)
-    parameters['l_'+sp+'sigma'].set(min=0.0001)
-    parameters['l2_'+sp+'sigma'].set(min=0.0001)
+    parameters['l_'+sp+'sigma'].set(min=0.00001)
+    parameters['l2_'+sp+'sigma'].set(min=0.00001)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     parameters['l_'+sp+'center'].set(expr='e_'+sp+'center')  # centers tied
