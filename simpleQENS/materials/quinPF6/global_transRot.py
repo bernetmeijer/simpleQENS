@@ -30,7 +30,7 @@ def make_global_model(temps, res, Qvalues, init_params):
     for temp in temps:
 
         # make global fwhm for rotational process and tie to Arrhenius behaviour
-        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-fwhm_rot_Ea/(8.617*10**(-5) * T))'.format(temp))
+        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-fwhm_rot_Ea/(8.617*10**(-5) * {}))'.format(temp))
         # and global sine wave for fwhm of translational process
         g_params.add('fwhm_trans_a', min=0.0, expr='fwhm_trans_a_0 * exp(-fwhm_trans_a_Ea/(8.617*10**(-5) * {}))'.format(temp))
         g_params.add('fwhm_trans_l', value=init_params['fwhm_trans_l'], min=0.0)

@@ -94,8 +94,8 @@ def make_global_model(temps, res, Qvalues, init_params):
     for temp in temps:
 
         # make global fwhm for rotational process and tie to Arrhenius behaviour
-        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-fwhm_rot_Ea/(8.617*10**(-5) * T))'.format(temp))
-        g_params.add('fwhm_rot2', min=0.0, expr='fwhm_rot2_0 * exp(-fwhm_rot2_Ea/(8.617*10**(-5) * T))'.format(temp))
+        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-fwhm_rot_Ea/(8.617*10**(-5) * {}))'.format(temp))
+        g_params.add('fwhm_rot2', min=0.0, expr='fwhm_rot2_0 * exp(-fwhm_rot2_Ea/(8.617*10**(-5) * {}))'.format(temp))
 
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
