@@ -37,7 +37,8 @@ def make_global_model(temps, res, Qvalues, init_params):
 
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
-            m, ps = transAndRotModel.generate_model_and_params_transRot(res, spectrum_index=i, init_vals=init_params)
+            spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
+            m, ps = transAndRotModel.generate_model_and_params_transRot(res, spectrum_index=spectrum_index, init_vals=init_params)
             ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
             ps['l2_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot + 0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))
             ps['I_{}_c'.format(i)].set(value=init_params['I'])
@@ -84,9 +85,9 @@ def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_me
         for param in init_params.keys():
             default_params[param] = init_params[param]
 
-    l_model, g_params = make_global_model(temps, resolution, data['Q'], default_params)
+    l_model, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
     if init_fixes is not None:
         for init_fix_param in init_fixes:
             g_params[init_fix_param].set(vary=False)
-    global_fit, minimizer = leastSquares.minim(g_params, data, l_model, method=minim_method)
+    global_fit, minimizer = leastSquares.minim_globaltemp(g_params, data, temps, l_model, method=minim_method)
     return global_fit, l_model, minimizer

@@ -282,6 +282,39 @@ def minim(parameters, data, l_model, method='leastsq'):
     return g_fit, minimizer
 
 
+def residuals_globaltemp(params, data, temps, l_models, real_residu=False):
+    n_spectra = len(l_models)
+    r"""Difference between model and experiment, weighted by the experimental error
+
+    Parameters
+    ----------
+    params : lmfit.Parameters
+        Parameters for the global model
+
+    Returns
+    -------
+    numpy.ndarray
+        1D array of residuals for the global model
+    """
+    all_residuals = []
+    for tt, temp in enumerate(temps):  # loop over temperatures
+        temp_models = l_models[tt]  # collect spectrum models for each temperature
+        all_residuals.append(residuals(params, data[tt], temp_models, real_residu=real_residu))  # residual for temperature
+
+    if real_residu:
+        return all_residuals
+    else:
+        return np.concatenate(all_residuals)
+
+
+def minim_globaltemp(parameters, data, temps, l_model, method='leastsq'):
+    """ Minimize the residuals function and return the optimal parameters + statistics
+    """
+    minimizer = lmfit.Minimizer(residuals_globaltemp, parameters, fcn_args=(data, temps, l_model), nan_policy='omit')
+    g_fit = minimizer.minimize(method=method)
+    return g_fit, minimizer
+
+
 def get_initial_fit(data, resolution, n_spectra, n_L, fixfwhm=True, fwhm1=None, fwhm2=None, init_fwhm_fix=False,
                     constraintFrac=None, bmax=None, minim_method='leastsq', init_params=None):
     """ Get fit for single or two-lorentzian model, with option to specify some initial conditions and to fix the fwhm
