@@ -40,9 +40,9 @@ def make_global_model(temps, res, Qvalues, init_params):
             # model and parameters for one of the spectra
             spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
             m, ps = transAndRotModel.generate_model_and_params_transRot(res, spectrum_index=spectrum_index, init_vals=init_params)
-            ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
-            ps['l2_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot + 0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))
-            ps['I_{}_c'.format(i)].set(value=init_params['I'])
+            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
+            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot + 0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))
+            ps['I_{}_c'.format(spectrum_index)].set(value=init_params['I'])
             # l2 is the rotational and translational lorentzian convolved,
             # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans
             l_model.append(m)

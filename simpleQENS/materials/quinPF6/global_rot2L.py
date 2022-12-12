@@ -12,12 +12,12 @@ from qef.models.tabulatedmodel import TabulatedModel
 from qef.operators.convolve import Convolve
 
 
-def generate_model_and_params_rot2L(res_data, spectrum_index=0, temp=0, init_vals=None):
+def generate_model_and_params_rot2L(res_data, spectrum_index=0, init_vals=None):
     """Produce an LMFIT model with two Lorentzians and related set of fitting parameters.
     This model has 2 Lorentzians: one with globally fixed width (rotational) and one with the width following a sine wave (translational).
     We fix the global Lorentzian width for the rotational process."""
 
-    sp = '' if spectrum_index is None else '{}_{}K_'.format(spectrum_index, temp)  # prefix if spectrum_index passed
+    sp = '' if spectrum_index is None else '{}_'.format(spectrum_index)
 
     # Resolution
     resolution1Dy = res_data['I'][0]  # Q, E
@@ -102,10 +102,11 @@ def make_global_model(temps, res, Qvalues, init_params):
 
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
-            m, ps = generate_model_and_params_rot2L(res, spectrum_index=i, temp=int(temp), init_vals=init_params)
-            ps['l_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot')
-            ps['l2_{}_sigma'.format(i)].set(expr='0.50000*fwhm_rot2')
-            ps['I_{}_c'.format(i)].set(value=init_params['I'])
+            spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
+            m, ps = generate_model_and_params_rot2L(res, spectrum_index=spectrum_index, init_vals=init_params)
+            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot')
+            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot2')
+            ps['I_{}_c'.format(spectrum_index)].set(value=init_params['I'])
             # l2 is the rotational and translational lorentzian convolved,
             # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans
             l_model.append(m)
