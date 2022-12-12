@@ -79,7 +79,7 @@ def make_global_model(res, Qvalues, init_params):
     return l_model, g_params
 
 
-def get_fit(data, resolution, init_params=None):
+def get_fit(data, resolution, init_params=None, init_fixes=None):
     """ Fit the data to the translational model.
     Parameters
     ----------
@@ -105,5 +105,10 @@ def get_fit(data, resolution, init_params=None):
             default_params[param] = init_params[param]
 
     l_model, g_params = make_global_model(resolution, data['Q'], default_params)
+
+    if init_fixes is not None:
+        for init_fix_param in init_fixes:
+            g_params[init_fix_param].set(vary=False)
+
     global_fit, minimizer = leastSquares.minim(g_params, data, l_model)
     return global_fit, l_model, minimizer
