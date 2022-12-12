@@ -26,23 +26,23 @@ def make_global_model(temps, res, Qvalues, init_params):
     g_params.add('fwhm_rot_Ea', value=init_params['fwhm_rot_Ea'])
     g_params.add('fwhm_trans_a_0', value=init_params['fwhm_trans_a_0'], min=0.0)
     g_params.add('fwhm_trans_a_Ea', value=init_params['fwhm_trans_a_Ea'])
+    g_params.add('fwhm_trans_l', value=init_params['fwhm_trans_l'], min=0.0)  # also set jump distance globally
 
     for temp in temps:
 
         # make global fwhm for rotational process and tie to Arrhenius behaviour
         # kB in meV, 1/kB = 11.6049669 K/meV
-        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-11.6049669 * fwhm_rot_Ea/({}))'.format(temp))
+        g_params.add('fwhm_rot_{}'.format(temp), min=0.0, expr='fwhm_rot_0 * exp(-11.6049669 * fwhm_rot_Ea/({}))'.format(temp))
         # and global sine wave for fwhm of translational process
-        g_params.add('fwhm_trans_a', min=0.0, expr='fwhm_trans_a_0 * exp(-11.6049669 * fwhm_trans_a_Ea/({}))'.format(temp))
-        g_params.add('fwhm_trans_l', value=init_params['fwhm_trans_l'], min=0.0)
+        g_params.add('fwhm_trans_a_{}'.format(temp), min=0.0, expr='fwhm_trans_a_0 * exp(-11.6049669 * fwhm_trans_a_Ea/({}))'.format(temp))
 
         temp_models = list()
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
             spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
             m, ps = transAndRotModel.generate_model_and_params_transRot(res, spectrum_index=spectrum_index, init_vals=init_params)
-            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
-            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot + 0.50000*fwhm_trans_a*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(Qvalues[i], Qvalues[i]))
+            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_trans_a_{}*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(temp, Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
+            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot_{} + 0.50000*fwhm_trans_a_{}*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(temp, temp, Qvalues[i], Qvalues[i]))
             ps['I_{}_c'.format(spectrum_index)].set(value=init_params['I'])
             # l2 is the rotational and translational lorentzian convolved,
             # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans

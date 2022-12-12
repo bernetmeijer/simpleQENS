@@ -97,16 +97,16 @@ def make_global_model(temps, res, Qvalues, init_params):
 
         # make global fwhm for rotational process and tie to Arrhenius behaviour
         # kB in meV, 1/kB = 11.6049669 K/meV
-        g_params.add('fwhm_rot', min=0.0, expr='fwhm_rot_0 * exp(-11.6049669 * fwhm_rot_Ea/({}))'.format(temp))
-        g_params.add('fwhm_rot2', min=0.0, expr='fwhm_rot2_0 * exp(-11.6049669 * fwhm_rot2_Ea/({}))'.format(temp))
+        g_params.add('fwhm_rot_{}'.format(temp), min=0.0, expr='fwhm_rot_0 * exp(-11.6049669 * fwhm_rot_Ea/({}))'.format(temp))
+        g_params.add('fwhm_rot2_{}'/format(temp), min=0.0, expr='fwhm_rot2_0 * exp(-11.6049669 * fwhm_rot2_Ea/({}))'.format(temp))
 
         temp_models = list()
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
             spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
             m, ps = generate_model_and_params_rot2L(res, spectrum_index=spectrum_index, init_vals=init_params)
-            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot')
-            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot2')
+            ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot_{}'.format(temp))
+            ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot2_{}'.format(temp))
             ps['I_{}_c'.format(spectrum_index)].set(value=init_params['I'])
             # l2 is the rotational and translational lorentzian convolved,
             # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans
@@ -157,8 +157,10 @@ def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_me
             default_params[param] = init_params[param]
 
     l_models, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
+
     if init_fixes is not None:
         for init_fix_param in init_fixes:
             g_params[init_fix_param].set(vary=False)
+
     global_fit, minimizer = leastSquares.minim_globaltemp(g_params, data, temps, l_models, method=minim_method)
     return global_fit, l_models, minimizer
