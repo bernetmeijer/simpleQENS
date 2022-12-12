@@ -98,7 +98,7 @@ def make_global_model(temps, res, Qvalues, init_params):
         # make global fwhm for rotational process and tie to Arrhenius behaviour
         # kB in meV, 1/kB = 11.6049669 K/meV
         g_params.add('fwhm_rot_{}'.format(temp), min=0.0, expr='fwhm_rot_0 * exp(-11.6049669 * fwhm_rot_Ea/({}))'.format(temp))
-        g_params.add('fwhm_rot2_{}'/format(temp), min=0.0, expr='fwhm_rot2_0 * exp(-11.6049669 * fwhm_rot2_Ea/({}))'.format(temp))
+        g_params.add('fwhm_rot2_{}'.format(temp), min=0.0, expr='fwhm_rot2_0 * exp(-11.6049669 * fwhm_rot2_Ea/({}))'.format(temp))
 
         temp_models = list()
         for i in range(0, n_spectra):
