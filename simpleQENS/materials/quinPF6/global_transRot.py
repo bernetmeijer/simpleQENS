@@ -17,7 +17,7 @@ def make_global_model(temps, res, Qvalues, init_params):
     """ Put all individual spectrum model into one big model and set of parameters.
     """
     n_spectra = len(Qvalues)
-    l_model = list()
+    l_models = list()
     g_params = lmfit.Parameters()
 
     # make global fwhm with Arrhenius behaviour. Ea is in electron volt.
@@ -36,6 +36,7 @@ def make_global_model(temps, res, Qvalues, init_params):
         g_params.add('fwhm_trans_a', min=0.0, expr='fwhm_trans_a_0 * exp(-11.6049669 * fwhm_trans_a_Ea/({}))'.format(temp))
         g_params.add('fwhm_trans_l', value=init_params['fwhm_trans_l'], min=0.0)
 
+        temp_models = list()
         for i in range(0, n_spectra):
             # model and parameters for one of the spectra
             spectrum_index = '{}_{}K'.format(i, temp)  # add temperature to prefix
@@ -45,11 +46,13 @@ def make_global_model(temps, res, Qvalues, init_params):
             ps['I_{}_c'.format(spectrum_index)].set(value=init_params['I'])
             # l2 is the rotational and translational lorentzian convolved,
             # which gives a lorentzian with fwhm = fwhm_rot + fwhm_trans
-            l_model.append(m)
+            temp_models.append(m)
             for p in ps.values():
                 g_params.add(p)
 
-    return l_model, g_params
+        l_models.append(temp_models)
+
+    return l_models, g_params
 
 
 def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_method='leastsq'):
@@ -86,9 +89,9 @@ def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_me
         for param in init_params.keys():
             default_params[param] = init_params[param]
 
-    l_model, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
+    l_models, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
     if init_fixes is not None:
         for init_fix_param in init_fixes:
             g_params[init_fix_param].set(vary=False)
-    global_fit, minimizer = leastSquares.minim_globaltemp(g_params, data, temps, l_model, method=minim_method)
-    return global_fit, l_model, minimizer
+    global_fit, minimizer = leastSquares.minim_globaltemp(g_params, data, temps, l_models, method=minim_method)
+    return global_fit, l_models, minimizer
