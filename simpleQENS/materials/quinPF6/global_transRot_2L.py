@@ -47,7 +47,7 @@ def make_global_model(temps, res, Qvalues, init_params):
             m, ps = transAndRotModel_2L.generate_model_and_params_transRot(res, spectrum_index=spectrum_index, init_vals=init_params)
             ps['l_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_trans_a_{}*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(temp, Qvalues[i], Qvalues[i]))  # translational fwhm = a* (1-sin(l * Q)/(lQ))
             ps['l2_{}_sigma'.format(spectrum_index)].set(expr='0.50000*fwhm_rot_{} + 0.50000*fwhm_trans_a_{}*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(temp, temp, Qvalues[i], Qvalues[i]))
-            ps['l3_{}_sigma'.format(i)].set(
+            ps['l3_{}_sigma'.format(spectrum_index)].set(
                 expr='0.50000*fwhm_rot2_{} + 0.50000*fwhm_trans_a_{}*(1-sin(fwhm_trans_l*{})/({}*fwhm_trans_l))'.format(temp,
                     temp,
                     Qvalues[i],
