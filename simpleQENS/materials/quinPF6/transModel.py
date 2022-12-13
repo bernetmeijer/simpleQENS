@@ -38,11 +38,20 @@ def generate_model_and_params_trans(res_data, spectrum_index=0, init_vals=None):
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     # Some initial sensible values
-    if init_vals is None:
-        init_vals = {'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
-                     #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
-    for p, v in init_vals.items():
-        parameters[p].set(value=v)
+    default_vals = {'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0,
+                    'l_'+sp+'sigma': 0.01, 'l_'+sp+'amplitude': 0.9}
+    # 'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
+    init_keys = default_vals.keys()
+    # set custom parameters if given
+    vals = default_vals
+    if init_vals is not None:
+        for param in init_vals.keys():
+            vals[param] = init_vals[param]
+    for p in init_keys:
+        try:
+            parameters[p].set(value=vals[p])
+        except:
+            continue
 
     # OPTIONAL, if you don't want to model the background
     #parameters['b_'+sp+'slope'].set(vary=False)
