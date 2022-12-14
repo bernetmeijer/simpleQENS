@@ -186,8 +186,8 @@ def make_global_params(n_spectra, g_params, n_L, fixfwhm, fwhm=None, fwhm2=None,
 
     # Fix the background over the different spectra:
     # Introduce global parameters b_slope and b_intercept
-    g_params.add('b_slope', value=0)
-    g_params.add('b_intercept', value=0)
+    #g_params.add('b_slope', value=0)
+    #g_params.add('b_intercept', value=0)
 
     #Tie the background of each spectrum to these values
     #for i in range(n_spectra):

@@ -272,12 +272,12 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         l_model, g_params = transModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
 
-    elif modelname in ['transRot', 'transRot_fwhmFixed']:
+    elif modelname in ['transRot', 'transRot_fwhmFixed', 'transRot_l6.4', 'transRot_l6.07']:
         default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transAndRotModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
 
-    elif modelname == 'transRot_2L':
+    elif 'transRot_2L' in modelname:
         default_params = {'fwhm_rot': 0.1, 'fwhm_rot2': 0.01, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transAndRotModel_2L.make_global_model(resolution, data['Q'], default_params)
         delta = False
