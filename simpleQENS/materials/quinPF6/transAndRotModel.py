@@ -37,8 +37,8 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     # Ties and constraints
     parameters['l_'+sp+'amplitude'].set(min=0.0001, max=1.0)
     parameters['l2_'+sp+'amplitude'].set(min=0.0001)
-    parameters['l_'+sp+'sigma'].set(min=0.0001)
-    parameters['l2_'+sp+'sigma'].set(min=0.0001)
+    parameters['l_'+sp+'sigma'].set(min=0.0001, max=20.0)
+    parameters['l2_'+sp+'sigma'].set(min=0.0001, max=20.0)
     # allowing the HWHM to get closer to zero than this makes the EISF and QISF too correlated
 
     parameters['l2_'+sp+'center'].set(expr='l_'+sp+'center')  # centers tied
@@ -46,7 +46,7 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
 
     # Some initial sensible values
     default_vals = {'I_'+sp+'c': 0.9, 'l_'+sp+'sigma': 0.04,
-                    'l2_'+sp+'sigma': 0.04,
+                    'l2_'+sp+'sigma': 0.2,
                     'b_'+sp+'slope': 0, 'b_'+sp+'intercept': 0}
                     #'l_'+sp+'center': 0.0, 'r_'+sp+'center': 0.0}
     init_keys = default_vals.keys()

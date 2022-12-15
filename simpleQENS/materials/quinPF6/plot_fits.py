@@ -22,7 +22,7 @@ temps = [280]
 models = ['1Lfreefwhm', '1Lfixfwhm', '2Lfixfwhm', '1Ltransfwhm', 'transRot', 'transRot_2L', 'transRot_rotFixed', 'static']
 models = ['1Lfreefwhm', '1Lfixfwhm', '2Lfixfwhm', '1Ltransfwhm', 'transRot', 'static']
 #models = ['1Lfreefwhm', '1Lfixfwhm', '1Ltransfwhm', 'transRot', 'transRot_rotFixed']
-models = ['transRot_2L_l6.4']
+models = ['transRot_l6.07']
 #models=[]
 
 noAlu = True
@@ -94,7 +94,7 @@ for temp in temps:
             logscale=True
         else:
             logscale=True
-        figures_list = spectrum.plot_allspectra(data, reso, result, modelname, plot_bg=True, logscale=logscale)
+        figures_list = spectrum.plot_allspectra(data, reso, result, modelname, plot_bg=True, logscale=logscale, plot_data=True)
         plt.show()
         #for sp in range(len(data['Q'])):
             #figures_list[sp][0].savefig(os.path.join(savedir, '{}K_{}{}_residual_sp{}.png'.format(temp, alu_id, modelname, sp)))

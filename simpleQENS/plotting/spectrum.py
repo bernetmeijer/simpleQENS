@@ -59,7 +59,7 @@ def my_residual(data, l_model, params, spec):
     return I - model_evaluation
 
 
-def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True):
+def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=True):
     """
 
     Parameters
@@ -117,8 +117,9 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
     # simple plot: data, model and residual
     fig1, ax1 = plt.subplots()
     # plot data
-    ax1.scatter(data['E'], data['I'][spec], color='darkorange', label='data', facecolor='None', s=400, lw=2,
-                zorder=3)
+    if plot_data:
+        ax1.scatter(data['E'], data['I'][spec], color='darkorange', label='data', facecolor='None', s=400, lw=2,
+                    zorder=3)
     # plot model
     best_model = spec_model.eval(x=data['E'], params=params)
     ax1.plot(data['E'], best_model, color='navy', label='total model', lw=lw, zorder=4)
@@ -148,8 +149,9 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
     # advanced plot: plot all contributions
     fig2, ax2 = plt.subplots()
     # plot data
-    ax2.scatter(data['E'], data['I'][spec], color='darkorange', label='data', facecolor='None', s=400, lw=2,
-                zorder=3)
+    if plot_data:
+        ax2.scatter(data['E'], data['I'][spec], color='darkorange', label='data', facecolor='None', s=400, lw=2,
+                    zorder=3)
 
     # plots total model
     ax2.plot(data['E'], best_model, color='navy', label='total model', lw=lw, zorder=4)
@@ -222,12 +224,12 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, delta=True)
     plt.legend(frameon=False)
     plt.title('Q {} = {} A-1'.format(spec, data['Q'][spec]))
     # plt.yscale('log')
-    ax2.text(0, 0.8, 'Chi-2 = {}'.format(np.round(chi2, 3)), transform=ax2.transAxes)
+    #ax2.text(0, 0.8, 'Chi-2 = {}'.format(np.round(chi2, 3)), transform=ax2.transAxes)
 
     return fig1, ax1, fig2, ax2
 
 
-def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale=False):
+def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale=False, plot_data=True):
     """
     Parameters
     ----------
@@ -255,7 +257,7 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         # loop over spectra (results are now in different objects, so result is a list of result)
         all_figures = []
         for sp in range(n_spectra):
-            fig1, ax1, fig2, ax2 = plot_fit(data, resolution, result[sp]['params'], sp, l_model, plot_bg=plot_bg)
+            fig1, ax1, fig2, ax2 = plot_fit(data, resolution, result[sp]['params'], sp, l_model, plot_bg=plot_bg, plot_data=plot_data)
             all_figures.append([fig1, ax1, fig2, ax2])
         return all_figures
 
@@ -267,12 +269,12 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         l_model, g_params = leastSquares.make_global_model(resolution, n_spectra, 2)
         delta = True
 
-    elif modelname == '1Ltransfwhm':
+    elif '1Ltransfwhm' in modelname:
         default_params = {'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
 
-    elif modelname in ['transRot', 'transRot_fwhmFixed', 'transRot_l6.4', 'transRot_l6.07']:
+    elif modelname in ['transRot', 'transRot_fwhmFixed', 'transRot_l6.4', 'transRot_l6.07', 'transRot_l6.395']:
         default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transAndRotModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
@@ -294,7 +296,7 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
     # loop over spectra
     all_figures = []
     for sp in range(len(data['I'])):
-        fig1, ax1, fig2, ax2 = plot_fit(data, resolution, result['params'], sp, l_model, plot_bg=plot_bg, delta=delta)
+        fig1, ax1, fig2, ax2 = plot_fit(data, resolution, result['params'], sp, l_model, plot_bg=plot_bg, plot_data=plot_data)
         if logscale:
             #ax1.set_yscale('log')
             ax2.set_yscale('log')
