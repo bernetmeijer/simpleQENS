@@ -27,6 +27,12 @@ models = ['transRot_l6.07']
 
 noAlu = True
 
+""" Saving info """
+save = True
+save_sp = [3]
+
+
+""" Functions """
 
 def load_data(temp):
     if temp > 290:
@@ -92,12 +98,18 @@ for temp in temps:
 
         if temp < 300:
             logscale=True
+            xlim = [-0.12, 0.12]
         else:
             logscale=True
-        figures_list = spectrum.plot_allspectra(data, reso, result, modelname, plot_bg=True, logscale=logscale, plot_data=True)
+            xlim = [-0.66, 0.66]
+        figures_list = spectrum.plot_allspectra(data, reso, result, modelname, plot_bg=True, logscale=logscale, plot_data=True, xlim=xlim)
         plt.show()
-        #for sp in range(len(data['Q'])):
-            #figures_list[sp][0].savefig(os.path.join(savedir, '{}K_{}{}_residual_sp{}.png'.format(temp, alu_id, modelname, sp)))
-            #plt.close(figures_list[sp][0])
-            #figures_list[sp][2].savefig(os.path.join(savedir, '{}K_{}{}_contributions_sp{}.png'.format(temp, alu_id, modelname, sp)))
-            #plt.close(figures_list[sp][2])
+        if save:
+            for sp in range(len(data['Q'])):
+                if sp in save_sp:
+                    figures_list[sp][1].set_xlim(xlim)
+                    figures_list[sp][0].savefig(os.path.join(savedir, '{}K_{}{}_residual_sp{}.png'.format(temp, alu_id, modelname, sp)))
+                    plt.close(figures_list[sp][0])
+                    figures_list[sp][3].set_xlim(xlim)
+                    figures_list[sp][2].savefig(os.path.join(savedir, '{}K_{}{}_contributions_sp{}.png'.format(temp, alu_id, modelname, sp)))
+                    plt.close(figures_list[sp][2])

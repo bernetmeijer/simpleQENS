@@ -66,6 +66,7 @@ def generate_model_and_params_transRot(res_data, spectrum_index=0, init_vals=Non
     #parameters['b_'+sp+'intercept'].set(vary=False)
 
     parameters['r_'+sp+'amplitude'].set(vary=False)
+    parameters['r_'+sp+'center'].set(value=0.0, vary=False)
 
     #parameters['l_'+sp+'fwhm'].set(max=1.0)
     #parameters['I_'+sp+'c'].set(max=10000.0)

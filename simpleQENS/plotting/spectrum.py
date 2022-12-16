@@ -162,13 +162,16 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=T
         resoy = intensity * params['e_{}_amplitude'.format(spec)] * resolution['I'][spec]
     except:
         resoy = intensity * resolution['I'][spec]
-    colorres = adjust_lightness('skyblue', amount=1.27)
+    # set maximum to the data maximum
+    resoy = resoy * max(data['I'][spec])/max(resoy)
+    #colorres = adjust_lightness('skyblue', amount=1.27)
+    colorres = 'grey'
     # for nice darker legend colour:
-    ax2.plot(resolution['E'], resoy,
-             color='lightblue', linestyle='--', label='resolution', lw=lw2, zorder=0)
+    #ax2.plot(resolution['E'], resoy,
+    #         color='mediumslateblue', linestyle='--', label='resolution', lw=lw2, zorder=9, alpha=0.7)
     # actual colour:
-    ax2.plot(resolution['E'], resoy,
-             color=colorres, linestyle='--', lw=lw2, zorder=5)
+    #ax2.plot(resolution['E'], resoy,
+    #         color=colorres, linestyle='--', lw=lw2, zorder=0)
 
     # plot the contrubutions
     lor_center = 0.0  # just fix it at zero
@@ -180,15 +183,17 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=T
                            I=params['I_' + str(spec) + '_c'], resolution=resolution)
         ax2.plot(data['E'], inel1, color='mediumslateblue', label='Lorentzian 1', linestyle='-.', lw=lw2, zorder=6)
         colorlor = adjust_lightness('mediumslateblue', amount=1.23)
-        ax2.fill_between(data['E'], np.zeros(inel1.shape), inel1, color=colorlor, zorder=1)
-        ax2.fill_between(resolution['E'], inel1, resoy, color='lightblue', alpha=0.5, zorder=0)
+        #colorlor = 'lightblue'
+        ax2.fill_between(data['E'], np.zeros(inel1.shape), inel1, color=colorlor, zorder=2)
+        #ax2.fill_between(resolution['E'], inel1, resoy, color='lightblue', alpha=0.5, zorder=2)
 
-        try:  # snd lorentzian
+        try:  # 2nd lorentzian
             inel2 = lorentzian(data['E'], ampl=params['l2_' + str(spec) + '_amplitude'].value,
                                fwhm=params['l2_' + str(spec) + '_fwhm'].value,
                                centre=lor_center, I=params['I_' + np.str(spec) + '_c'],
                                resolution=resolution)
-            ax2.plot(data['E'], inel2, color='pink', label='Lorentzian 2', linestyle='-.', lw=lw2, zorder=7)
+            ax2.plot(data['E'], inel2, color='darkorchid', label='Lorentzian 2', linestyle='-.', lw=lw2, zorder=7)
+            ax2.fill_between(data['E'], inel1, inel2, color=adjust_lightness('darkorchid', 1.3), zorder=1)
 
             try:  # 3rd lorentzian
                 inel3 = lorentzian(data['E'], ampl=params['l3_' + str(spec) + '_amplitude'].value,
@@ -206,7 +211,7 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=T
     if plot_bg:
         bg = background(data['E'], offset=params['b_' + np.str(spec) + '_intercept'].value,
                         slope=params['b_' + np.str(spec) + '_slope'].value)
-        ax2.plot(data['E'], bg, color='red', label='background')
+        ax2.plot(data['E'], bg, color='red', label='background', lw=lw2, zorder=9)
 
     # ticks
     ax2.tick_params(which='major', pad=15,
@@ -219,9 +224,10 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=T
     ax2.tick_params(which='minor', direction='in')
     ax2.minorticks_on()
 
-    ax2.set_xlabel('E (meV)', fontsize=18)
-    ax2.set_ylabel('I (arb. units)', fontsize=18)
-    plt.legend(frameon=False)
+    ax2.set_xlabel('E (meV)')
+    ax2.set_ylabel('I (arb. units)')
+    ax2.set_ylim(bottom=min(inel1), top=(max(data['I'][spec])*7))
+    plt.legend(frameon=False, loc='upper right', fontsize=25)
     plt.title('Q {} = {} A-1'.format(spec, data['Q'][spec]))
     # plt.yscale('log')
     #ax2.text(0, 0.8, 'Chi-2 = {}'.format(np.round(chi2, 3)), transform=ax2.transAxes)
@@ -229,7 +235,7 @@ def plot_fit(data, resolution, params, spec, l_model, plot_bg=False, plot_data=T
     return fig1, ax1, fig2, ax2
 
 
-def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale=False, plot_data=True):
+def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale=False, plot_data=True, xlim=[-0.5, 0.5]):
     """
     Parameters
     ----------
@@ -274,7 +280,8 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         l_model, g_params = transModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
 
-    elif modelname in ['transRot', 'transRot_fwhmFixed', 'transRot_l6.4', 'transRot_l6.07', 'transRot_l6.395']:
+    elif modelname in ['transRot', 'transRot_fwhmFixed', 'transRot_l6.4', 'transRot_l6.07', 'transRot_l6.395',
+                       'transRot_rotFixed_l6.395']:
         default_params = {'fwhm_rot': 0.1, 'fwhm_trans_a': 0.2, 'fwhm_trans_l': 1.5, 'I': 1.0}
         l_model, g_params = transAndRotModel.make_global_model(resolution, data['Q'], default_params)
         delta = False
@@ -300,6 +307,8 @@ def plot_allspectra(data, resolution, result, modelname, plot_bg=False, logscale
         if logscale:
             #ax1.set_yscale('log')
             ax2.set_yscale('log')
+        ax1.set_xlim(xlim)
+        ax2.set_xlim(xlim)
         all_figures.append([fig1, ax1, fig2, ax2])
 
     return all_figures
