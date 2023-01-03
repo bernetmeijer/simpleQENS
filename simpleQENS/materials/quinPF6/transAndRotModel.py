@@ -138,14 +138,11 @@ def get_fit(data, resolution, init_params=None, init_fixes=None, minim_method='l
         for param in init_params.keys():
             default_params[param] = init_params[param]
 
+    l_model, g_params = make_global_model(resolution, data['Q'], default_params)
+
     # if total_params is given, then we just use that to define the whole initial params
     if total_params is not None:
-        l_model, g_params = make_global_model(resolution, data['Q'], total_params)
-        # for param in total_params.keys():
-        #    g_params[param].set(value=total_params[param].value)
         g_params = total_params
-    else:
-        l_model, g_params = make_global_model(resolution, data['Q'], default_params)
 
     if init_fixes is not None:
         for init_fix_param in init_fixes:
