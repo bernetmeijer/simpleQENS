@@ -55,7 +55,7 @@ def make_global_model(temps, res, Qvalues, init_params):
     return l_models, g_params
 
 
-def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_method='leastsq'):
+def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_method='leastsq', total_params=None):
     """ Fit the data to the translational - rotational model.
     Parameters
     ----------
@@ -74,6 +74,10 @@ def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_me
         such as 'fwhm_rot'
     minim_method: string
         minimisation method (see https://lmfit.github.io/lmfit-py/fitting.html for options)
+    total_params: lmfit params object
+        Parameters() object containing all initial parameters corresponding to the model,
+        can be obtained from previous fit, using the savingLmfit.load_minimizerResult(filepath) function.
+        This will overwrite the init_params.
 
     Returns
     -------
@@ -89,9 +93,19 @@ def get_fit(data, resolution, temps, init_params=None, init_fixes=None, minim_me
         for param in init_params.keys():
             default_params[param] = init_params[param]
 
-    l_models, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
+    # if total_params is given, then we just use that to define the whole initial params
+    if total_params is not None:
+        l_models, g_params = make_global_model(temps, resolution, data[0]['Q'], total_params)
+        #for param in total_params.keys():
+        #    g_params[param].set(value=total_params[param].value)
+        g_params = total_params
+    else:
+        l_models, g_params = make_global_model(temps, resolution, data[0]['Q'], default_params)
+
     if init_fixes is not None:
         for init_fix_param in init_fixes:
             g_params[init_fix_param].set(vary=False)
+
     global_fit, minimizer = leastSquares.minim_globaltemp(g_params, data, temps, l_models, method=minim_method)
+
     return global_fit, l_models, minimizer
