@@ -18,18 +18,18 @@ savedir = '/Users/Bernet/OneDrive - Queen Mary, University of London/PhD/Materia
 
 #temps = [320, 350, 400]
 temps = [240, 260, 280]
-temps = [280]
+temps = [350]
 models = ['1Lfreefwhm', '1Lfixfwhm', '2Lfixfwhm', '1Ltransfwhm', 'transRot', 'transRot_2L', 'transRot_rotFixed', 'static']
 models = ['1Lfreefwhm', '1Lfixfwhm', '2Lfixfwhm', '1Ltransfwhm', 'transRot', 'static']
 #models = ['1Lfreefwhm', '1Lfixfwhm', '1Ltransfwhm', 'transRot', 'transRot_rotFixed']
-models = ['transRot_l6.07']
+models = ['transRot_restart']
 #models=[]
 
 noAlu = True
 
 """ Saving info """
 save = True
-save_sp = [3]
+save_sp = [2]  # LT: 3, HT: 5
 
 
 """ Functions """
