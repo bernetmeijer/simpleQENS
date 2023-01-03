@@ -143,6 +143,7 @@ def get_fit(data, resolution, init_params=None, init_fixes=None, minim_method='l
     # if total_params is given, then we just use that to define the whole initial params
     if total_params is not None:
         g_params = total_params
+        total_params['fwhm_rot'].set(vary=True)
 
     if init_fixes is not None:
         for init_fix_param in init_fixes:
